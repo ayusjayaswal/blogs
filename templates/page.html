@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ config.title }}{% endblock %}
+{% block description %}{{ page.description | default(value=page.summary) }}{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>{{ page.title }}</h1>
+        <div class="post-meta">
+            Published on {{ page.date | date(format="%B %d, %Y") }}
+            {% if page.updated %}
+                • Updated on {{ page.updated | date(format="%B %d, %Y") }}
+            {% endif %}
+        </div>
+        
+        {% if page.taxonomies.tags %}
+            <div class="tags">
+                {% for tag in page.taxonomies.tags %}
+                    <a href="{{ get_url(path="tags") }}/{{ tag | slugify }}" class="tag">{{ tag }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </header>
+
+    <div class="post-content">
+        {{ page.content | safe }}
+    </div>
+</article>
+
+<nav class="nav">
+    <a href="{{ get_url(path="posts") }}">← Back to Posts</a>
+</nav>
+{% endblock %}

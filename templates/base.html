@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="{{ config.default_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.title }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ config.description }}{% endblock %}">
+    <link rel="stylesheet" href="{{ get_url(path="main.css") }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{{ get_url(path="") }}">home</a></li>
+                    <li><a href="{{ get_url(path="posts") }}">posts</a></li>
+                    <li><a href="{{ get_url(path="tags") }}">tags</a></li>
+                </ul>
+                <ul class="nav-links">
+                    <li><button class="nav-btn" id="theme-toggle"></button></li>
+                    <li>
+                        <button class="nav-btn" id="radio-toggle">
+                            <span>🎵</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+<script>
+  const themeToggle = document.getElementById("theme-toggle");
+  const radioToggle = document.getElementById("radio-toggle");
+  let onlineRadio = null;
+  let isPlaying = false;
+  let isLoading = false;
+
+  // Radio stream URL
+  const RADIO_STREAM_URL = "https://live.musopen.org:8085/streamvbr0";
+
+  function updateThemeButtonText() {
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "light";
+    themeToggle.innerHTML =
+      currentTheme === "light"
+        ? '<ion-icon name="planet"></ion-icon>'
+        : '<ion-icon name="sunny"></ion-icon>';
+  }
+
+  function setInitialTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      updateThemeButtonText();
+      return;
+    }
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    if (prefersDark) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("theme", "light");
+    }
+    updateThemeButtonText();
+  }
+
+  function toggleTheme() {
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "light";
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeButtonText();
+  }
+
+  function createAudioElement() {
+    if (!onlineRadio) {
+      onlineRadio = new Audio();
+      onlineRadio.preload = "none";
+      onlineRadio.crossOrigin = "anonymous";
+      onlineRadio.addEventListener("loadstart", () => {
+        console.log("Radio: Starting to load");
+      });
+      onlineRadio.addEventListener("canplay", () => {
+        console.log("Radio: Can start playing");
+      });
+      onlineRadio.addEventListener("playing", () => {
+        radioToggle.innerHTML = '<ion-icon name="pause"></ion-icon>';
+        isPlaying = true;
+        isLoading = false;
+      });
+      onlineRadio.addEventListener("pause", () => {
+        radioToggle.innerHTML = '<ion-icon name="musical-notes" class="icon"></ion-icon>';
+        isPlaying = false;
+        isLoading = false;
+      });
+      onlineRadio.addEventListener("error", (e) => {
+        console.error("Radio error:", e);
+        radioToggle.innerHTML = '<ion-icon name="musical-notes" class="icon"></ion-icon>';
+        isPlaying = false;
+        isLoading = false;
+        alert("Unable to play the radio stream. Please try again.");
+      });
+      onlineRadio.addEventListener("stalled", () => {
+        console.log("Radio: Stalled, buffering...");
+      });
+      onlineRadio.addEventListener("waiting", () => {
+        console.log("Radio: Waiting for data...");
+      });
+    }
+    return onlineRadio;
+  }
+
+  async function toggleRadio() {
+    if (isLoading) return;
+    if (isPlaying) {
+      onlineRadio.pause();
+      onlineRadio.currentTime = 0;
+      radioToggle.innerHTML = '<ion-icon name="musical-notes" class="icon"></ion-icon>';
+      isPlaying = false;
+    } else {
+      try {
+        isLoading = true;
+        radioToggle.innerHTML = '<ion-icon name="hourglass"></ion-icon>';
+        const audio = createAudioElement();
+        if (audio.src !== RADIO_STREAM_URL) {
+          audio.src = RADIO_STREAM_URL + "?" + Date.now();
+        }
+        await audio.play();
+        
+      } catch (error) {
+        console.error("Error playing audio:", error);
+        radioToggle.innerHTML = '<ion-icon name="musical-notes" class="icon"></ion-icon>';
+        isPlaying = false;
+        isLoading = false;
+        
+        if (error.name === 'NotAllowedError') {
+          alert("Please interact with the page first before playing audio (browser policy).");
+        } else if (error.name === 'NotSupportedError') {
+          alert("Your browser doesn't support this audio format.");
+        } else {
+          alert("Unable to play the radio stream. Please check your internet connection.");
+        }
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setInitialTheme();
+    
+    if (themeToggle) {
+      themeToggle.addEventListener("click", toggleTheme);
+    }
+    
+    if (radioToggle) {
+      radioToggle.addEventListener("click", toggleRadio);
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (onlineRadio && isPlaying) {
+      onlineRadio.pause();
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && onlineRadio && isPlaying) {
+    }
+  });
+</script>
+
+<script
+  type="module"
+  src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script
+  nomodule
+  src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

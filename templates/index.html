@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% set posts_section = get_section(path="posts/_index.md") %}
+
+<section>
+    <h1 class="titel">{{ config.title }}</h1>
+</section>
+
+{% if config.extra.show_tags and posts_section.pages %}
+<section>
+    {% set_global all_tags = [] %}
+    {% for page in posts_section.pages %}
+        {% if page.taxonomies.tags %}
+            {% for tag in page.taxonomies.tags %}
+                {% set_global all_tags = all_tags | concat(with=tag) %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    
+    {% if all_tags %}
+        <div class="tags">
+            {% for tag in all_tags | unique | slice(end=10) %}
+                <a href="{{ get_url(path="tags/" ~ tag) }}" class="tag">{{ tag }}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>
+{% endif %}
+
+<section>
+    <h2 class="titel">Recent Posts</h2>
+    {% if posts_section.pages %}
+        <ul class="blog-list">
+            {% for page in posts_section.pages | slice(end=5) %}
+                <li>
+                    <a href="{{ page.permalink }}" class="blog-link">
+                        <span class="blog-title">{{ page.title }}</span>
+                        <span class="dots"></span>
+                        <span class="blog-date">{{ page.date | date(format="%B %d, %Y") }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="nav">
+            <a href="{{ get_url(path="posts") }}">View All Posts →</a>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No posts yet. Start writing!</p>
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}

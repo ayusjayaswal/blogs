@@ -1,35 +1,19 @@
-# The URL the site will be built for
-base_url = "https://example.com"
-
-# The site title and description
-title = "Ayush's Blogs"
-description = "A minimal blog built with Zola"
-
-# The default language; used in feeds and search index
+base_url = "https://ayushjayaswal.xyz"
+title = "porceylain's Blogs"
+description = "Writings and posts from porceylain"
 default_language = "en"
-
-# Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
-
-# Whether to build a search index to be used later on by a JavaScript library
 build_search_index = false
 
-# Enable taxonomies
 taxonomies = [
     {name = "tags", feed = true},
 ]
 
 [markdown]
-# Whether to do syntax highlighting
 highlight_code = true
-
-# The theme to use for syntax highlighting
 highlight_theme = "gruvbox-dark"
-
-# Whether smart punctuation is enabled
 smart_punctuation = true
 
 [extra]
-# Put all your custom variables here
 show_tags = true
 posts_per_page = 10

@@ -4,11 +4,8 @@
 
 {% set posts_section = get_section(path="posts/_index.md") %}
 
-<section>
-    <h1 class="titel">{{ config.title }}</h1>
-</section>
-
 {% if config.extra.show_tags and posts_section.pages %}
+<article>
 <section>
     {% set_global all_tags = [] %}
     {% for page in posts_section.pages %}
@@ -30,27 +27,25 @@
 {% endif %}
 
 <section>
-    <h2 class="titel">Recent Posts</h2>
+    <h2 class="titel">All Posts</h2>
     {% if posts_section.pages %}
         <ul class="blog-list">
-            {% for page in posts_section.pages | slice(end=5) %}
+            {% for page in posts_section.pages %}
                 <li>
                     <a href="{{ page.permalink }}" class="blog-link">
                         <span class="blog-title">{{ page.title }}</span>
                         <span class="dots"></span>
-                        <span class="blog-date">{{ page.date | date(format="%B %d, %Y") }}</span>
+                        <span class="blog-date">{{ page.date | date(format="%b, %Y") }}</span>
                     </a>
                 </li>
             {% endfor %}
         </ul>
-        <div class="nav">
-            <a href="{{ get_url(path="posts") }}">View All Posts →</a>
-        </div>
     {% else %}
         <div class="empty-state">
             <p>No posts yet. Start writing!</p>
         </div>
     {% endif %}
 </section>
+</article>
 
 {% endblock %}

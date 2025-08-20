@@ -1,28 +1,5 @@
 :root {
-	--bg-color: #fbf1c7;
-	--bg-secondary: #ebdbb2;
-	--text-color: #3c3836;
-	--primary-color: #689d6a;
-	--secondary-color: #458588;
-	--accent-color: #cc241d;
-	--accent-dark: #751310;
-	--accent-light: #ffc89b;
-	--link-color: #076678;
-	--visited-link-color: #122f55;
-	--header-height: 60px;
-	--footer-bg: #504945;
-	--footer-text: #fbf1c7;
-	--border-radius: 4px;
-	--box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	--selection-bg:  #cc241d7e;
-	--selection-fg: #282828;
 
-	--pre-border-radius:8px;
-	--pre-box-shadow: 0 0px 50px rgba(255, 99, 71, 0.5)
-
-}
-
-[data-theme="dark"] {
 	--bg-color: #282828;
 	--bg-secondary: #3c3836;
 	--text-color: #ebdbb2;
@@ -41,7 +18,8 @@
 	--selection-fg: #ffc89b;
 
 	--pre-border-radius:8px;
---pre-box-shadow: 0 0px 50px rgba(255, 99, 71, 0.2)}
+--pre-box-shadow: 0 0px 50px rgba(255, 99, 71, 0.2)
+}
 
 @import url("https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif&display=swap');
@@ -54,7 +32,7 @@
 
 body {
 	max-width: 1000px;
-	margin: 2vh auto;
+	margin: 5vh auto;
 	color: var(--text-color);
 	line-height: 1.5;
 	font-size: clamp(1rem, 1.2vw + 0.5rem, 1.25rem);
@@ -94,7 +72,12 @@ h1 {
 	line-height: 0.9;
 	margin: 0;
 }
-
+h1::first-letter{
+	color: var(--accent-color);
+	font-size: 4rem;
+	letter-spacing: 0.07rem;
+	text-transform: uppercase;
+}
 h2 {
 	font-size: 1.6rem;
 	line-height: 1.4;
@@ -149,11 +132,6 @@ section {
 	margin: 20px 0;
 }
 
-/* List Styling with Indentation */
-ul, ol {
-	margin-left: 2rem;
-	margin-bottom: 1rem;
-}
 
 ul ul, ol ol, ul ol, ol ul {
 	margin-left: 2rem;
@@ -210,84 +188,41 @@ textarea {
 	resize: none;
 }
 
-nav {
-    background-color: var(--accent-color);
-    box-shadow: var(--box-shadow);
-    font-size: 1.2rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-nav {
+header {
+    font-size: 1.5rem;
+	border-bottom: 2px solid var(--accent-color);
+  }
+  
+  nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
-    height: 2.5rem;
-}
-
-.nav-links {
+	height: 2.5rem;
+  }
+  
+  .nav-links {
     display: flex;
     justify-content: space-evenly;
     list-style: none;
     align-items: center;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-links li {
+  }
+  
+  .nav-links li {
     margin-inline: 0.5rem;
-    display: flex;
-    align-items: center;
+	align-items: center;
 }
-
-.nav-links a {
-    color: var(--bg-color);
+  
+  .nav-links a {
+	color: var(--link-color);
     text-decoration: none;
-    font-weight: 500;
-    padding: 0.2rem 0.5rem;
-    transition: all 0.2s ease;
-    border-radius: var(--border-radius);
-    font-family: "PT Serif", serif;
-}
+	padding-inline: 0.6rem;
+  }
+  
+  .nav-links a:hover {
+    background-color: var(--bg-secondary);
+    color: var(--accent-color);
+  }
 
-.nav-links a:hover {
-    background-color: var(--accent-dark);
-    color: var(--accent-light);
-}
-
-.nav-btn {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    border: none;
-    background: none;
-    cursor: pointer;
-    margin: 0;
-    padding: 0.2rem;
-    display: flex;
-    font-size: 1.5rem;
-    transition: all 0.2s ease;
-    min-width: 24px;
-    min-height: 24px;
-    align-items: center;
-    justify-content: center;
-    color: var(--bg-color);
-    border-radius: var(--border-radius);
-}
-
-.nav-btn:hover {
-    background-color: var(--accent-dark);
-    color: var(--accent-light);
-}
-
-.nav-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
 
 #radio-toggle span {
     font-size: 0.8rem;
@@ -302,7 +237,6 @@ nav {
     }
 
     .nav-links {
-        margin: 0.25rem 0;
     }
 
     .nav-links li {
@@ -359,12 +293,12 @@ nav {
 .dots {
 	flex-grow: 1;
 	margin: 0 0.75rem;
-	border-bottom: 0.2rem dotted var(--text-color);
+	border-bottom: 0.2rem dotted var(--bg-secondary);
 	opacity: 0.6;
 }
 
 .blog-date {
-	color: var(--secondary-color);
+	color: var(--bg-secondary);
 	font-style: italic;
 	font-size: 1rem;
 }
@@ -409,37 +343,4 @@ nav {
 
 .post-content {
 	margin: 2rem 0;
-}
-
-.nav {
-	text-align: center;
-	margin: 2rem 0;
-}
-
-.nav a {
-	margin: 0 1rem;
-	color: var(--primary-color);
-	text-decoration: none;
-	font-weight: 500;
-}
-
-.nav a:hover {
-	color: var(--accent-color);
-}
-
-.theme-toggle {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	background-color: var(--accent-color);
-	color: var(--bg-color);
-	border: none;
-	padding: 0.5rem;
-	border-radius: var(--border-radius);
-	cursor: pointer;
-	z-index: 1000;
-}
-
-.theme-toggle:hover {
-	background-color: var(--accent-dark);
 }

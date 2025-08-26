@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>porceylain&#x27;s Blogs - semaphores</title>
+    <subtitle>Writings and posts from porceylain</subtitle>
+    <link rel="self" type="application/atom+xml" href="https://ayushjayaswal.xyz/blog/tags/semaphores/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://ayushjayaswal.xyz/blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2025-07-19T00:00:00+00:00</updated>
+    <id>https://ayushjayaswal.xyz/blog/tags/semaphores/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Notes on Little book of Semaphores</title>
+        <published>2025-07-19T00:00:00+00:00</published>
+        <updated>2025-07-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://ayushjayaswal.xyz/blog/posts/lil-sem/"/>
+        <id>https://ayushjayaswal.xyz/blog/posts/lil-sem/</id>
+        
+        <content type="html" xml:base="https://ayushjayaswal.xyz/blog/posts/lil-sem/">&lt;h1 id=&quot;synchronization&quot;&gt;Synchronization&lt;&#x2F;h1&gt;
+&lt;p&gt;=Serialization:= Event A must happen before Event B.
+=Mutual exclusion:= Events A and B must not happen at the same time.&lt;&#x2F;p&gt;
+&lt;p&gt;programmer has no control over when each thread runs; the operating system (specifically, the scheduler) makes those decisions.&lt;&#x2F;p&gt;
+&lt;p&gt;Two events are concurrent if we cannot tell by looking at the program which will happen first. Concurrent programs are often non-deterministic&lt;&#x2F;p&gt;
+&lt;p&gt;An update might appear to be one instruction in your fancy languages but in machine code it often translates to read then compute then write and this can be intercepted by another variable using a shared variable.&lt;&#x2F;p&gt;
+&lt;p&gt;AN OPERATION THAT CANNOT BE INTERRUPTED IS SAID TO BE ATOMIC.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;semaphore&quot;&gt;Semaphore&lt;&#x2F;h1&gt;
+&lt;p&gt;A semaphore is like an integer, with three differences:
+1. When you create the semaphore, you can initialize its value to any integer, but after that the only operations you are allowed to perform are increment (increase by one) and decrement (decrease by one). You cannot read the current value of the semaphore.
+2. When a thread decrements the semaphore, if the result is negative, the thread blocks itself and cannot continue until another thread increments the semaphore.
+3. When a thread increments the semaphore, if there are other threads waiting, one of the waiting threads gets unblocked.&lt;&#x2F;p&gt;
+&lt;p&gt;If the value is positive, then it represents the number of threads that can decrement without blocking. If it is negative, then it represents the number of threads that have blocked and are waiting. If the value is zero, it means there are no threads waiting, but if a thread tries to decrement, it will block.&lt;&#x2F;p&gt;
+&lt;p&gt;• In general, there is no way to know before a thread decrements a semaphore whether it will block or not (in specific cases you might be able to prove that it will or will not).&lt;&#x2F;p&gt;
+&lt;p&gt;• After a thread increments a semaphore and another thread gets woken up, both threads continue running concurrently. There is no way to know which thread, if either, will continue immediately.&lt;&#x2F;p&gt;
+&lt;p&gt;• When you signal a semaphore, you don’t necessarily know whether another thread is waiting, so the number of unblocked threads may be zero or one.&lt;&#x2F;p&gt;
+&lt;p&gt;On names,
+increment and decrement describe what the operations do. signal and wait describe what they are often used for. And V and P were the original names proposed by Dijkstr&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;basic-synchronization-patterns&quot;&gt;Basic synchronization patterns&lt;&#x2F;h1&gt;
+&lt;p&gt;Possibly the simplest use for a semaphore is signaling, which means that one thread sends a signal to another thread to indicate that something has happened.&lt;&#x2F;p&gt;
+&lt;p&gt;The mutex guarantees that only one thread accesses the shared variable at a time.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282828;color:#fdf4c1aa;&quot;&gt;&lt;code&gt;&lt;span&gt;mutex.wait ()
+&lt;&#x2F;span&gt;&lt;span&gt;    &#x2F;&#x2F; critical section
+&lt;&#x2F;span&gt;&lt;span&gt;    count = count + 1
+&lt;&#x2F;span&gt;&lt;span&gt;mutex.signal ()
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h1 id=&quot;multiplex&quot;&gt;Multiplex&lt;&#x2F;h1&gt;
+&lt;p&gt;Generalize the previous solution so that it allows multiple threads to
+run in the critical section at the same time, but it enforces an upper limit on
+the number of concurrent threads. In other words, no more than n threads can
+run in the critical section at the same time. This pattern is called a MULTIPLEX&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;classical-synchronization-problems&quot;&gt;Classical synchronization problems&lt;&#x2F;h1&gt;
+</content>
+        
+    </entry>
+</feed>

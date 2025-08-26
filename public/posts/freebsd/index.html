@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>baby steps to a wifi tool for FreeBSD ;) - porceylain&#x27;s Blogs</title>
+    <meta name="description" content="">
+    <link rel="stylesheet" href="https://ayushjayaswal.xyz/blog/main.css">
+    
+</head>
+<body>
+  <header>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="https://ayushjayaswal.xyz/blog">all_posts</a></li>
+                    <li><a href="https://ayushjayaswal.xyz/blog/tags">tags</a></li>
+                </ul>
+            </nav>
+  </header>
+    <main>
+        
+<article>
+        <h1>baby steps to a wifi tool for FreeBSD ;)</h1>
+        <div class="post-meta">
+            Published on April 13, 2025
+            
+        </div>
+        
+        
+            <div class="tags">
+                
+                    <a href="https://ayushjayaswal.xyz/blog/tags/freebsd" class="tag">freebsd</a>
+                
+                    <a href="https://ayushjayaswal.xyz/blog/tags/wifi" class="tag">wifi</a>
+                
+                    <a href="https://ayushjayaswal.xyz/blog/tags/networking" class="tag">networking</a>
+                
+            </div>
+        
+
+    <div class="post-content">
+        <p><img src="https://freebsdfoundation.org/wp-content/uploads/2022/04/Untitled-design-8-1024x512.png" alt="" />
+So, I have been planning a WiFi management tool for FreeBSD for some time now. If you are on Linux, you have an array of tools to manage WiFi connections, but you won’t be that lucky on FreeBSD :/</p>
+<p>The first step to control WiFi connections is to control the Network Interface. Now, my first thought was to simply use <code>popen("ifconfig wlan0 up")</code>, but what if there’s no wlan0? Say you have multiple WiFi drivers, Intel wireless cards (iwnX), etc. Also, it’s bad design to do such a thing.</p>
+<p>So the next best thing is to use <code>libifconfig</code>… But libifconfig has its own problems: it’s not standard. At least my version of FreeBSD doesn’t have it. Added to that, libifconfig is a fairly new tool and lacks good docuimentation. So probably the best thing to do now is make direct system calls to dynamically choose the right network interface. Once a valid network interface is found, we can move further.</p>
+<p>A good resource to learn more on implementing such functionality is <a href="https://stackoverflow.com/questions/23577787/how-can-i-enumerate-the-list-of-network-devices-or-interfaces-in-c-or-c-in-fre">this thread</a> on stackoverflow and the <a href="https://man.freebsd.org/cgi/man.cgi?query=getifaddrs&amp;sektion=3&amp;manpath=freebsd-release-ports">getifaddrs() man page</a>.</p>
+<p>The following is a prototype function for finding WiFi interfaces for a FreeBSD system:</p>
+<pre data-lang="c" style="background-color:#282828;color:#fdf4c1aa;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#fa5c4b;">char</span><span style="color:#fe8019;">* </span><span style="color:#8ec07c;">find_wifi_interface</span><span>() {
+</span><span>    </span><span style="color:#fa5c4b;">struct</span><span> ifaddrs </span><span style="color:#fe8019;">*</span><span>interfaces, </span><span style="color:#fe8019;">*</span><span>interface;
+</span><span>    </span><span style="color:#fa5c4b;">struct</span><span> ifmediareq media_request;
+</span><span>    </span><span style="color:#fa5c4b;">int</span><span> socket_fd;
+</span><span>    </span><span style="color:#fa5c4b;">char </span><span style="color:#fe8019;">*</span><span>wifi_interface </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">NULL</span><span>;
+</span><span>    </span><span style="color:#fdf4c1;">getifaddrs(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">interfaces)</span><span>;
+</span><span>    socket_fd </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">socket(AF_INET, SOCK_DGRAM, </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">if </span><span>(socket_fd </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">0</span><span>) {
+</span><span>        </span><span style="color:#fdf4c1;">freeifaddrs(interfaces)</span><span>;
+</span><span>        </span><span style="color:#fa5c4b;">return </span><span style="color:#d3869b;">NULL</span><span>;
+</span><span>    }
+</span><span>    
+</span><span>    </span><span style="color:#fabd2f;">printf</span><span style="color:#fdf4c1;">(</span><span style="color:#b8bb26;">&quot;Scanning interfaces:\n&quot;</span><span style="color:#fdf4c1;">)</span><span>;
+</span><span>    
+</span><span>    </span><span style="color:#fa5c4b;">for </span><span>(interface </span><span style="color:#fe8019;">=</span><span> interfaces; interface </span><span style="color:#fe8019;">!= </span><span style="color:#d3869b;">NULL</span><span>; interface </span><span style="color:#fe8019;">=</span><span> interface-&gt;ifa_next) {
+</span><span>        </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fe8019;">!</span><span>interface-&gt;ifa_name)
+</span><span>            </span><span style="color:#fa5c4b;">continue</span><span>;
+</span><span>        </span><span style="color:#fabd2f;">memset</span><span style="color:#fdf4c1;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">media_request, </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#fe8019;">sizeof</span><span style="color:#fdf4c1;">(media_request))</span><span>;
+</span><span>        </span><span style="color:#fabd2f;">strncpy</span><span style="color:#fdf4c1;">(media_request.ifm_name, interface-&gt;ifa_name, IFNAMSIZ </span><span style="color:#fe8019;">- </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">)</span><span>;
+</span><span>        
+</span><span>        </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fdf4c1;">ioctl(socket_fd, SIOCGIFMEDIA, (</span><span style="color:#fabd2f;">caddr_t</span><span style="color:#fdf4c1;">)</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">media_request) </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0 </span><span style="color:#fe8019;">&amp;&amp; 
+</span><span>            (media_request.</span><span style="color:#fdf4c1;">ifm_active </span><span style="color:#fe8019;">&amp;</span><span> IFM_NMASK) </span><span style="color:#fe8019;">==</span><span> IFM_IEEE80211) {
+</span><span>            
+</span><span>            </span><span style="color:#fabd2f;">printf</span><span style="color:#fdf4c1;">(</span><span style="color:#b8bb26;">&quot;  </span><span style="color:#fdf4c1;">%s</span><span style="color:#b8bb26;">: WiFi interface\n&quot;</span><span style="color:#fdf4c1;">, interface-&gt;ifa_name)</span><span>;
+</span><span>            wifi_interface </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">strdup(interface-&gt;ifa_name)</span><span>;  </span><span style="font-style:italic;color:#928374;">// Save the first Wi-Fi interface
+</span><span>            </span><span style="color:#fa5c4b;">break</span><span>;
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#fdf4c1;">freeifaddrs(interfaces)</span><span>;
+</span><span>    </span><span style="color:#fdf4c1;">close(socket_fd)</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">return</span><span> wifi_interface;
+</span><span>}
+</span></code></pre>
+<p>This C snippet creates a socket for system calls, gets a list of all network interfaces as a linked list, and then iterates through each interface. It uses the <code>ioctl()</code> system call with <code>SIOCGIFMEDIA</code> to check if each interface supports WiFi (specifically looking for the <code>IFM_IEEE80211</code> flag). The function prints diagnostic information to stderr during the search and returns the name of the first WiFi interface found (as a dynamically allocated string) or NULL if none is found.</p>
+<p>Obviously, <code>&lt;sys/types.h&gt;</code> and <code>&lt;ifaddrs.h&gt;</code> for interface address structures, <code>&lt;sys/socket.h&gt;</code> for socket operations, <code>&lt;sys/ioctl.h&gt;</code> for the ioctl call, <code>&lt;net/if.h&gt;</code> for interface definitions, <code>&lt;net/if_media.h&gt;</code> for media information structures etc. would be needed.</p>
+<p>Now once the Network interface is found, this can be stored as the default Wifi Interface and maybe changed if needed. Following function provides the functionality to toggle the interface on or off or provide Wifi Interface status.</p>
+<pre data-lang="c" style="background-color:#282828;color:#fdf4c1aa;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#fa5c4b;">int </span><span style="color:#8ec07c;">toggle_wifi</span><span>(</span><span style="color:#fa5c4b;">const char </span><span style="color:#fe8019;">*</span><span style="color:#fdf4c1;">interface_name</span><span>, </span><span style="color:#fa5c4b;">int </span><span style="color:#fdf4c1;">enable</span><span>) {
+</span><span>    </span><span style="color:#fa5c4b;">struct</span><span> ifreq ifr;
+</span><span>    </span><span style="color:#fa5c4b;">int</span><span> socket_fd;
+</span><span>    </span><span style="color:#fa5c4b;">int</span><span> current_flags;
+</span><span>    </span><span style="color:#fa5c4b;">int</span><span> result </span><span style="color:#fe8019;">= -</span><span style="color:#d3869b;">1</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fe8019;">!</span><span>interface_name)
+</span><span>        </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span>;
+</span><span>    socket_fd </span><span style="color:#fe8019;">= </span><span style="color:#fdf4c1;">socket(AF_INET, SOCK_DGRAM, </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">)</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">if </span><span>(socket_fd </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">0</span><span>)
+</span><span>        </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span>;
+</span><span>    
+</span><span>    </span><span style="color:#fabd2f;">memset</span><span style="color:#fdf4c1;">(</span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">ifr, </span><span style="color:#d3869b;">0</span><span style="color:#fdf4c1;">, </span><span style="color:#fe8019;">sizeof</span><span style="color:#fdf4c1;">(ifr))</span><span>;
+</span><span>    </span><span style="color:#fabd2f;">strncpy</span><span style="color:#fdf4c1;">(ifr.ifr_name, interface_name, IFNAMSIZ </span><span style="color:#fe8019;">- </span><span style="color:#d3869b;">1</span><span style="color:#fdf4c1;">)</span><span>;
+</span><span>    
+</span><span>    </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fdf4c1;">ioctl(socket_fd, SIOCGIFFLAGS, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">ifr) </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">0</span><span>) {
+</span><span>        </span><span style="color:#fdf4c1;">close(socket_fd)</span><span>;
+</span><span>        </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span>;
+</span><span>    }
+</span><span>    
+</span><span>    current_flags </span><span style="color:#fe8019;">=</span><span> ifr.</span><span style="color:#fdf4c1;">ifr_flags</span><span>;
+</span><span>    
+</span><span>    </span><span style="color:#fa5c4b;">if </span><span>(enable </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">1</span><span>) {
+</span><span>        ifr.</span><span style="color:#fdf4c1;">ifr_flags </span><span style="color:#fe8019;">|=</span><span> IFF_UP;
+</span><span>        </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fdf4c1;">ioctl(socket_fd, SIOCSIFFLAGS, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">ifr) </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">0</span><span>) {
+</span><span>            </span><span style="color:#fdf4c1;">close(socket_fd)</span><span>;
+</span><span>            </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span>;
+</span><span>        }
+</span><span>        result </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">1</span><span>;
+</span><span>    } 
+</span><span>    </span><span style="color:#fa5c4b;">else if </span><span>(enable </span><span style="color:#fe8019;">== </span><span style="color:#d3869b;">0</span><span>) {
+</span><span>        ifr.</span><span style="color:#fdf4c1;">ifr_flags </span><span style="color:#fe8019;">&amp;= ~</span><span>IFF_UP;
+</span><span>        </span><span style="color:#fa5c4b;">if </span><span>(</span><span style="color:#fdf4c1;">ioctl(socket_fd, SIOCSIFFLAGS, </span><span style="color:#fe8019;">&amp;</span><span style="color:#fdf4c1;">ifr) </span><span style="color:#fe8019;">&lt; </span><span style="color:#d3869b;">0</span><span>) {
+</span><span>            </span><span style="color:#fdf4c1;">close(socket_fd)</span><span>;
+</span><span>            </span><span style="color:#fa5c4b;">return </span><span style="color:#fe8019;">-</span><span style="color:#d3869b;">1</span><span>;
+</span><span>        }
+</span><span>        result </span><span style="color:#fe8019;">= </span><span style="color:#d3869b;">0</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#fa5c4b;">else </span><span>{
+</span><span>        </span><span style="font-style:italic;color:#928374;">// Just return current status (enable == -1)
+</span><span>        result </span><span style="color:#fe8019;">= </span><span>(current_flags </span><span style="color:#fe8019;">&amp;</span><span> IFF_UP) </span><span style="color:#fe8019;">? </span><span style="color:#d3869b;">1 </span><span style="color:#fe8019;">: </span><span style="color:#d3869b;">0</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#fdf4c1;">close(socket_fd)</span><span>;
+</span><span>    </span><span style="color:#fa5c4b;">return</span><span> result;
+</span><span>}
+</span></code></pre>
+<p>The next step now is to allow for Scanning of Wifi Networks…</p>
+
+    </div>
+</article>
+
+<nav class="nav">
+    <a href="https://ayushjayaswal.xyz/blog">← Back to Posts</a>
+</nav>
+
+    </main>
+</body>
+</html>

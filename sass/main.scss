@@ -1,6 +1,6 @@
 :root {
 
-	--bg-color: #282828;
+	--bg-color: #1d2021;
 	--bg-secondary: #3c3836;
 	--text-color: #ebdbb2;
 	--primary-color: #8ec07c;
@@ -13,12 +13,11 @@
 	--footer-bg: #1d2021;
 	--footer-text: #ebdbb2;
 	--border-radius: 4px;
-	--box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	--selection-bg:  #721f167e;
 	--selection-fg: #ffc89b;
 
 	--pre-border-radius:8px;
---pre-box-shadow: 0 0px 50px rgba(255, 99, 71, 0.2)
+        --pre-bg:#1d2021;
 }
 
 @import url("https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap");
@@ -147,17 +146,16 @@ code {
 	border-radius: var(--border-radius);
 }
 
-pre {
+pre {   
 	color: var(--code-text);
 	padding: 1rem;
+        border: 0.02px solid var(--primary-color);
 	border-radius: var(--pre-border-radius);
 	overflow-x: auto;
 	margin: 1rem 0;
-	box-shadow: var(--pre-box-shadow);
 }
 
 pre code {
-	background: none;
 	padding: 0;
 	border: none;
 	font-size: 0.9rem;
@@ -169,7 +167,6 @@ img {
 	height: auto;
 	margin-block:1rem;
 	border-radius: var(--border-radius);
-	box-shadow: var(--box-shadow);
 }
 
 blockquote {

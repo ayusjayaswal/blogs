@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+Allow: /
+Sitemap: https://ayushjayaswal.xyz/blog/sitemap.xml

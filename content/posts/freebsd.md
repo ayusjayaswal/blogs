@@ -1,7 +1,11 @@
----
-title: baby steps to a wifi tool for FreeBSD ;)
-date: 2025-04-13
----
++++
+title = "baby steps to a wifi tool for FreeBSD ;)"
+date = 2025-04-13
+draft = false
+
+[taxonomies]
+tags = ["freebsd", "wifi", "networking"]
++++
 ![](https://freebsdfoundation.org/wp-content/uploads/2022/04/Untitled-design-8-1024x512.png)
 So, I have been planning a WiFi management tool for FreeBSD for some time now. If you are on Linux, you have an array of tools to manage WiFi connections, but you won't be that lucky on FreeBSD :/
 

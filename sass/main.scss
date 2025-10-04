@@ -91,39 +91,35 @@ h1 {
 h2 {
   font-size: 1.6rem;
   line-height: 1.4;
-  margin-left: 1rem;
 }
 
 h3 {
   font-size: 1.4rem;
   line-height: 1.3;
-  margin-left: 1.5rem;
 }
 
 h4 {
   font-size: 1.2rem;
   line-height: 1.2;
-  margin-left: 2rem;
 }
 
 h5 {
   font-size: 1.1rem;
   line-height: 1.1;
-  margin-left: 2.5rem;
 }
 
 h6 {
   font-size: 1rem;
   line-height: 1.1;
-  margin-left: 3rem;
 }
 
 p {
-  margin: 1.5rem 0.5rem;
+  margin: 1.5rem 0rem;
 }
 
 hr {
   margin-inline: 10%;
+  margin-block: 5%;
   background-color: var(--text-color); 
   height: 2px; 
   border: 0;
@@ -213,7 +209,7 @@ nav {
   color: var(--link-color);
   text-decoration: none;
   font-family: "Merriweather", serif;
-  padding: 0.1rem 1rem 0.82rem;
+  padding: 0.4rem 1rem 0.4rem;
   border-radius: var(--border-radius);
 }
 

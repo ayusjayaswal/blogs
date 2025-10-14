@@ -4,7 +4,7 @@ date = 2025-07-19
 draft = false
 
 [taxonomies]
-tags = ["notes","semaphores", "operating systems"]
+tags = ["notes","semaphores", "operating_systems"]
 +++
 # Synchronization
 

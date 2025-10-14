@@ -5,28 +5,28 @@
 
 {% block content %}
 <article>
-        <h1>{{ page.title }}</h1>
-        <div class="post-meta">
-            ... published on {{ page.date | date(format="%B %d, %Y") }}
-            {% if page.updated %}
-                • Updated on {{ page.updated | date(format="%B %d, %Y") }}
-            {% endif %}
-        </div>
-        
-        {% if page.taxonomies.tags %}
-            <div class="tags">
-                {% for tag in page.taxonomies.tags %}
-                    <a href="{{ get_url(path="tags") }}/{{ tag | slugify }}" class="tag">{{ tag }}</a>
-                {% endfor %}
-            </div>
-        {% endif %}
+	<h1>{{ page.title }}</h1>
+	<div class="post-meta">
+		... published on {{ page.date | date(format="%B %d, %Y") }}
+		{% if page.updated %}
+		• Updated on {{ page.updated | date(format="%B %d, %Y") }}
+		{% endif %}
+	</div>
 
-    <div class="post-content">
-        {{ page.content | safe }}
-    </div>
+	{% if page.taxonomies.tags %}
+	<div class="tags">
+		{% for tag in page.taxonomies.tags %}
+		<a href="{{ get_url(path="tags") }}/{{ tag | slugify }}" class="tag">{{ tag }}</a>
+		{% endfor %}
+	</div>
+	{% endif %}
+
+	<div class="post-content">
+		{{ page.content | safe }}
+	</div>
 </article>
 
 <nav class="nav">
-    <a href="{{ get_url(path="") }}">← Back to Posts</a>
+	<a href="{{ get_url(path="") }}">← Back to Posts</a>
 </nav>
 {% endblock %}

@@ -4,7 +4,7 @@ date = 2024-03-29
 draft = false
 
 [taxonomies]
-tags = ["Computer Networks","OSI", "Internet Protocols"]
+tags = ["computer_networks","OSI", "internet_protocols"]
 +++
 ## Layer 7: Application Layer
 Provides network services to end-users; deals with application-specific functionalities.

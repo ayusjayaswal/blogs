@@ -1,19 +1,27 @@
-base_url = "https://ayushjayaswal.xyz/blog"
-title = "porceylain's Blogs"
+base_url = "https://ayushjayaswal.dev/blog"
+title = "porceylain's Blog"
 description = "Writings and posts from porceylain"
+
 default_language = "en"
 compile_sass = true
 build_search_index = false
+generate_feeds = true
+feed_filenames = ["atom.xml"]
 
 taxonomies = [
-    {name = "tags", feed = true},
+    { name = "tags", feed = true }
 ]
 
 [markdown]
-highlight_code = true
-highlight_theme = "gruvbox-dark"
 smart_punctuation = true
+
+[markdown.highlighting]
+light_theme = "github-light"
+dark_theme = "github-dark"
+style = "inline"
+error_on_missing_language = false
 
 [extra]
 show_tags = true
 posts_per_page = 10
+check_external_links = true
